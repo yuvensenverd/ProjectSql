@@ -14,7 +14,7 @@ module.exports = {
             if(err) res.status(500).send(err);
     
             
-            console.log("Add Cart Success")
+           
          
             // console.log("masuk post a")
           
@@ -32,6 +32,23 @@ module.exports = {
     
             
             console.log("Add Cart Success")
+         
+            // console.log("masuk post a")
+          
+            // res.status(200).send(result)
+            res.status(200).send(result)
+        })
+    },
+    updateItemCart : (req,res) => {
+        console.log(req.body)
+        var sql = `UPDATE cartproduct SET quantity = ${req.body.qtyupdated} WHERE productid = ${req.body.productid} AND userid = ${req.body.userid}`
+        db.query(sql, (err,result)=>{
+           
+    
+            if(err) res.status(500).send(err);
+    
+            
+            console.log("UPDATE Cart Success")
          
             // console.log("masuk post a")
           

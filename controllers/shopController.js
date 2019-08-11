@@ -3,6 +3,8 @@ var db = require('../database')
 module.exports = {
     createStore : (req,res)=>{
         console.log(req.body)
+
+        // BLM DIGANTI
       
         var sql = `insert into shop  values ((select userid from user where username = '${req.query.user}'),'${req.body.name}', '${req.body.description}', ${req.body.shopimage})`
         
