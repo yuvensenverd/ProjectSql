@@ -7,7 +7,8 @@ const { cartRouter,productRouter,shopRouter,userRouter,categoryRouter} = require
 
 
 
-
+app.use(bodyParser.urlencoded({extended : false}))
+app.use(express.static('public')) // JADI DEFAULTNYA KE /PUBLIC
 app.use(cors())
 app.use(bodyParser.json())
 app.use('/cart', cartRouter)
