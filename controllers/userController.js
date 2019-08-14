@@ -43,6 +43,8 @@ module.exports = {
     },
     saveProfile : (req,res) =>{
         try {
+            console.log(req.body.data)
+            console.log(req.body)
             console.log("Masuk ADD POST")
             const path = '/post/image/user'; //file save path
             const upload = uploader(path, 'AVT').fields([{ name: 'image'}]); //uploader(path, 'default prefix')
