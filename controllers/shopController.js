@@ -1,25 +1,44 @@
 var db = require('../database')
+const {uploader} = require('../helpers/uploader')
+const fs = require('fs')
 
 module.exports = {
     createStore : (req,res)=>{
-        console.log(req.body)
-
+        console.log("Masuk create store")
+        const path = '/post/image/shop'; //file save path
+        const upload = uploader(path, 'SHP').fields([{ name: 'image'}]); //uploader(path, 'default prefix')
         // BLM DIGANTI
-      
-        var sql = `insert into shop  values ((select userid from user where username = '${req.query.user}'),'${req.body.name}', '${req.body.description}', ${req.body.shopimage})`
-        
-        db.query(sql, (err,result)=>{
-           
-    
-            if(err) res.status(500).send(err);
-    
-            
-            console.log("Register Shop Success")
+        upload(req, res, (err) => {
+            if(err){
+                console.log("Masuk")
+                return res.status(500).json({ message: 'Upload picture failed !', error: err.message });
+            }
          
-            // console.log("masuk post a")
-          
-            // res.status(200).send(result)
-            res.status(200).send(result)
+            const { image } = req.files;
+            console.log(image)
+            const imagePath = image ? path + '/' + image[0].filename : null;
+            console.log(imagePath)
+
+            console.log(req.body.data)
+            const data = JSON.parse(req.body.data);
+           
+            data.shopimage = imagePath;
+            
+            var sql = `insert into shop set ?`
+            
+            db.query(sql, data, (err,result)=>{
+            
+        
+                if(err) res.status(500).send(err);
+        
+                
+                console.log("Register Shop Success")
+            
+                // console.log("masuk post a")
+            
+                // res.status(200).send(result)
+                res.status(200).send(result)
+            })
         })
     },
     getUserStore : (req,res)=>{
