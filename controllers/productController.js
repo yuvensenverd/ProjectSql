@@ -22,15 +22,17 @@ module.exports = {
         })
     },
     getProductDetails : (req,res)=>{
-        var sql = `select p.id, p.name, p.price, p.description, s.name as shopname, s.description as shopdesc, p.rating, p.image_id, c.name as category from product p  join category c
-        on p.cat_id = c.id  join shop s on p.shop_id = s.userid   `
+        var sql = `select p.id, p.name, p.price, p.description, s.name as shopname, s.description as shopdesc, p.rating, 
+        GROUP_CONCAT(i.imagepath) AS images, c.name as category from product p  join category c on p.cat_id = c.id  join shop s on 
+        p.shop_id = s.userid join image i on p.id = i.product_id `
         
         if(req.query.cat){
-            sql += `where c.name = '${req.query.cat}'`
+            sql += `where c.name = '${req.query.cat}' `
         }
         if(req.query.id){
-            sql += `where p.id = '${req.query.id}'`
+            sql += `where p.id = '${req.query.id}' `
         }
+        sql = sql + `group by p.id`
     
         db.query(sql, (err,results)=>{
             if(err) res.status(500).send(err);
