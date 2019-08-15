@@ -56,7 +56,8 @@ module.exports = {
     },
     getProductStore : (req,res)=>{
         console.log(req.params.id)
-        var sql = `select p.name, p.price, p.description, p.rating, c.name as cat, p.image_id from product p join category c on p.cat_id = c.id where shop_id = ${req.params.id}`
+        var sql = `select p.name, p.price, p.description, p.rating, c.name as cat, GROUP_CONCAT(i.imagepath) AS images
+         from product p join category c on p.cat_id = c.id join image i on p.image_id = i.product_id where shop_id = ${req.params.id} group by p.id`
         db.query(sql,(err,result)=>{
             if(err){
                 res.status(500).send(err);

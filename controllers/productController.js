@@ -24,7 +24,7 @@ module.exports = {
     getProductDetails : (req,res)=>{
         var sql = `select p.id, p.name, p.price, p.description, s.name as shopname, s.description as shopdesc, p.rating, 
         GROUP_CONCAT(i.imagepath) AS images, c.name as category from product p  join category c on p.cat_id = c.id  join shop s on 
-        p.shop_id = s.userid join image i on p.id = i.product_id `
+        p.shop_id = s.userid join image i on p.image_id = i.product_id `
         
         if(req.query.cat){
             sql += `where c.name = '${req.query.cat}' `
