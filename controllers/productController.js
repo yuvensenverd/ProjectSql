@@ -56,20 +56,30 @@ module.exports = {
             //UPLOAD BERHASIL
             const { image } = req.files;
             console.log(image)
-            const imagePath = image ? path + '/' + image[0].filename : null;
-            console.log(imagePath)
+            var imagepaths =[]
+            for(var i = 0; i< image.length; i++){
+                var imgpath = image[i] ? path + '/' + image[i].filename : null
+                if(imgpath){
+                    imagepaths.push(imgpath)
+                }
+            }
+            console.log(imagepaths)
+            // const imagePath = image ? path + '/' + image[0].filename : null;
+            // console.log(imagePath)
+            // console.log(imagepaths)
 
             console.log(req.body.data)
             const data = JSON.parse(req.body.data);
-            data.productimg = imagePath;
+            data.productimg = imagepaths; // imagepaths is an array now
             console.log(data)
-
+            
             var sql = `INSERT INTO product set name = '${data.name}', price = ${data.price}, cat_id = (select id from category where name = '${data.cat_name}'),
                         shop_id = ${data.shop_id}, Description = '${data.description}', Rating = ${data.rating}`
 
             db.query(sql, (err, results)=>{
                 if(err) res.status(500).send(err)
 
+                console.log("Masuk gak error")
                 // get product id baru
                 sql = `select id, name from product where name = '${data.name}'`
                 db.query(sql, (err,results2)=>{
@@ -79,12 +89,36 @@ module.exports = {
                     console.log(results2[0].id)
                     
                     // taro imagepath di table image
-                    var dataimg = {
-                        product_id : results2[0].id,
-                        imagepath : data.productimg
+                    // var dataimg = {
+                    //     product_id : results2[0].id,
+                    //     imagepath : data.productimg
+                    // }
+                    var datas = []
+                    for(var i = 0; i<data.productimg.length;i++){
+                        datas.push({
+                            product_id : results2[0].id,
+                            imagepath : data.productimg[i]
+                        })
                     }
-                    sql = `insert into image set ?`
-                    db.query(sql, dataimg, (err,results3)=>{
+
+                    console.log(datas)
+                    console.log("Masih gak error sampai sini")
+
+
+                    sql = `INSERT INTO image (product_id, imagepath) VALUES `
+
+                    for(var i =0; i < datas.length; i++){
+                        sql = sql + `(${results2[0].id}, '${datas[i].imagepath}')`
+                        if(datas.length - 1 == i){
+                            console.log("Masuk, no koma")
+                        }else{
+                            sql = sql + ','
+                        }
+
+                    }
+                    
+                    
+                    db.query(sql, (err,results3)=>{
                         if(err) res.status(500).send(err)
 
                         console.log("berhasil set image path")
