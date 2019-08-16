@@ -23,8 +23,8 @@ module.exports = {
     },
     getProductDetails : (req,res)=>{
         var sql = `select p.id, p.name, p.price, p.description, s.name as shopname, s.description as shopdesc, p.rating, 
-        GROUP_CONCAT(i.imagepath) AS images, c.name as category from product p  join category c on p.cat_id = c.id  join shop s on 
-        p.shop_id = s.userid join image i on p.image_id = i.product_id `
+        GROUP_CONCAT(i.imagepath) AS images, c.name as category from product p  left join category c on p.cat_id = c.id  left join shop s on 
+        p.shop_id = s.userid left join image i on p.id= i.product_id `
         
         if(req.query.cat){
             sql += `where c.name = '${req.query.cat}' `
@@ -32,10 +32,14 @@ module.exports = {
         if(req.query.id){
             sql += `where p.id = '${req.query.id}' `
         }
-        sql = sql + `group by p.id`
+        sql = sql + ` group by p.id`
+        
     
         db.query(sql, (err,results)=>{
-            if(err) res.status(500).send(err);
+            if(err){
+                console.log(err)
+                res.status(500).send(err);
+            } 
     
           
             res.status(200).send(results)
@@ -97,40 +101,43 @@ module.exports = {
                     // }
                     var datas = []
                     for(var i = 0; i<data.productimg.length;i++){
-                        datas.push({
-                            product_id : results2[0].id,
-                            imagepath : data.productimg[i]
-                        })
+                        // datas.push({
+                        //     product_id : results2[0].id,
+                        //     imagepath : data.productimg[i]
+                        // })
+                        datas.push([results2[0].id, data.productimg[i]])
                     }
 
                     console.log(datas)
-                    console.log("Masih gak error sampai sini")
+                
 
 
-                    sql = `INSERT INTO image (product_id, imagepath) VALUES `
+                    sql = `INSERT INTO image (product_id, imagepath) VALUES ?`
 
-                    for(var i =0; i < datas.length; i++){
-                        sql = sql + `(${results2[0].id}, '${datas[i].imagepath}')`
-                        if(datas.length - 1 == i){
-                            console.log("Masuk, no koma")
-                        }else{
-                            sql = sql + ','
-                        }
-
-                    }
+                    // for(var i =0; i < datas.length; i++){
+                    //     sql = sql + `(${results2[0].id}, '${datas[i].imagepath}')`
+                    //     if(datas.length - 1 == i){
+                           
+                    //     }else{
+                    //         sql = sql + ','
+                    //     }
+                    // }
                     
                     
-                    db.query(sql, (err,results3)=>{
-                        if(err) res.status(500).send(err)
+                    db.query(sql,[datas], (err,results3)=>{
+                        if(err){
+                            console.log(err) 
+                            return res.status(500).send(err)
+                        } 
 
                         console.log("berhasil set image path")
 
-                        sql = `UPDATE product set image_id = '${results2[0].id}' where name = '${results2[0].name}'`
-                        db.query(sql, (err, results4)=>{
-                            if(err) res.status(500).send(err)
-                            console.log("Berhasil SEMUANYA")
-                            res.status(200).send(results2)
-                        })
+                        // sql = `UPDATE product set image_id = '${results2[0].id}' where name = '${results2[0].name}'`
+                        // db.query(sql, (err, results4)=>{
+                        //     if(err)  return res.status(500).send(err)
+                        //     console.log("Berhasil SEMUANYA")
+                        //     res.status(200).send(results2)
+                        // })
                     })
                     
                 })
