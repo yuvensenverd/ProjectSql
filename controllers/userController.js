@@ -1,44 +1,81 @@
 var db = require('../database')
 const {uploader} = require('../helpers/uploader')
 const fs = require('fs')
+const {encrypt}=require('../helpers/encrypts')
+const transporter= require('../helpers/mailer')
 
 module.exports = {
     getUserData : (req,res)=>{
- 
-        var sql = `SELECT u.username,u.saldo,u.profileimg, u.phonenumber,u.email, u.residence, u.userid, u.password, s.name as shopname, r.name as userrole from user u 
+        // evnrypt
+        console.log("Masuk FUnction")
+        console.log(req.body.pass)
+        var hashpassword = encrypt(req.body.pass)
+        console.log(hashpassword)
+        
+        var sql = `SELECT u.username,u.saldo,u.profileimg, u.phonenumber,u.email, u.residence, u.userid, u.status, u.password, s.name as shopname, r.name as userrole from user u 
         left join role r on u.role_id = r.id  left join shop s on u.userid = s.userid
-        where username = '${req.body.name}' and password = '${req.body.pass}'`
-    
+        where username = '${req.body.name}' and password = '${hashpassword}'`
+        
+        
+        
     
         db.query(sql, (err,results)=>{
             if(err) throw err;
        
     
-                
+            console.log("Masuk get user")
+            console.log(results)
             res.status(200).send(results)
        
     
         })
     },
     registerUser : (req,res)=>{
+        
 
-      
-    
+        var encrypted = encrypt(req.body.password)
+        req.body.password = encrypted
+        console.log(encrypted)
+
         var sql = `Insert into user set ?`
         db.query(sql,req.body, (err,result)=>{
         
     
             if(err) res.status(500).send(err);
     
-            console.log(sql)
+            console.log(result)
     
             
             console.log("Register Success")
-         
+            sql = `SELECT username, password from user where username = '${req.body.username}'`
+            db.query(sql, (err, result2)=>{
+                console.log(result2)
+
+                var linkVerifikasi = `http://localhost:3000/verified?username=${req.body.username}&password=${encrypted}`
+                var mailOptions = {
+                    from : 'App <yuvensenverd@yahoo.com>',
+                    to: req.body.email,
+                    subject: 'Email Verification',
+                    html : `Please Click This Link for Verification
+                    <a href="${linkVerifikasi}">Join</a>`
+                }
+
+                transporter.sendMail(mailOptions, (err2,res2)=>{
+                    if(err2){
+                        console.log(err2)
+                        return res.status(500).send({status : 'error', err : err2})
+                    }
+                    
+                    console.log("SUCCESS!")
+                    return res.status(200).send(result2)
+                })
+
+                
+            })
             // console.log("masuk post a")
           
             // res.status(200).send(result)
-            res.status(200).send(result)
+           
         })
     },
     saveProfile : (req,res) =>{
@@ -116,6 +153,77 @@ module.exports = {
         } catch(err) {
             return res.status(500).json({ message: "There's an error on the server. Please contact the administrator.", error: err.message });
         }
+    },
+    emailVerification : (req,res) =>{
+        var { username, password} = req.body;
+        var sql = `Select username,email from user where username = '${username}'`
+        console.log("Masuk verifikasi")
+        console.log(username)
+        console.log(password)
+
+        db.query(sql, (err, results)=>{
+            if(err) return res.status(500).send({status : 'error', err })
+
+            if(results.length === 0){
+                return res.status(500).send({ status : 'error', err : 'Users Not Found'})
+            }
+            console.log("berhasil")
+
+            sql = `Update user set status='Verified' where username = '${username}' and password='${password}'`
+            db.query(sql, (err,results1)=>{
+                if(err) return res.status(500).send({status : 'error', err })
+
+                return res.status(200).send(results)
+            })
+        })
+    },
+    resendEmailVer : (req,res) =>{
+        var {username, email}= req.body
+        console.log("Masuk resend")
+        var sql = `select username, password, email from user where username = '${username}' and email = '${email}'`
+        db.query(sql, (err,results)=>{
+            if(err){
+                console.log(err)
+                return res.status(500).send({status : 'error', err })
+            }
+
+            if(results.length === 0) {
+                return res.status(500).send({status : 'error', err : 'user not found'})
+            }
+
+            var linkVerifikasi = `http://localhost:3000/verified?username=${req.body.username}&password=${results[0].password}`
+            var mailOptions = {
+                from : 'App <yuvensenverd@yahoo.com>',
+                to: email,
+                subject: 'Email Verification',
+                html : `Please Click This Link for Verification
+                <a href="${linkVerifikasi}">Join</a>`
+            }
+
+            transporter.sendMail(mailOptions, (err2,res2)=>{
+                if(err2){
+                    console.log(err2)
+                    return res.status(500).send({status : 'error', err : err2})
+                }
+                
+                console.log("SUCCESS!")
+                return res.status(200).send(results)
+            })
+
+
+         })
+
+    },
+    adminGetUser : (req,res) =>{
+        var sql = `select u.username, u.email, u.saldo, r.name as role,u.userid, u.status  from user u join role r on u.role_id = r.id`
+        db.query(sql, (err,results)=>{
+            if(err) throw err;
+    
+    
+                
+            res.status(200).send(results)
+    
+        })
     }
 
 
