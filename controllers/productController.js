@@ -96,7 +96,7 @@ module.exports = {
 
                 console.log("Masuk gak error")
                 // get product id baru
-                sql = `select id, name from product where name = '${data.name}'`
+                sql = `select id, name from product where name = '${data.name}' and description = '${data.description}'` // to avoid duplicate select
                 db.query(sql, (err,results2)=>{
                     if(err) res.status(500).send(err)
 

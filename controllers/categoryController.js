@@ -47,19 +47,19 @@ module.exports = {
                 console.log(sql)
 
                 console.log("berhasil insert")
-                // res.status(200).send(results1)
+                res.status(200).send(results1)
 
-                sql = `select * from category`
+                // sql = `select * from category`
 
-                db.query(sql, (err,results2)=>{
-                    if(err){
-                        console.log(err)
-                        return res.status(500).json({ message: "There's an error on the server. Please contact the administrator.", error: err.message });
-                    }
-                    console.log("berhasil")
+                // db.query(sql, (err,results2)=>{
+                //     if(err){
+                //         console.log(err)
+                //         return res.status(500).json({ message: "There's an error on the server. Please contact the administrator.", error: err.message });
+                //     }
+                //     console.log("berhasil")
 
-                    res.status(200).send(results2)
-                })
+                //     res.status(200).send(results2)
+                // })
 
             })
             
@@ -127,19 +127,19 @@ module.exports = {
                 console.log(sql)
 
                 console.log("berhasil update category image")
-                // res.status(200).send(results1)
+                res.status(200).send(results1)
 
-                sql = `select * from category`
+                // sql = `select * from category`
 
-                db.query(sql, (err,results2)=>{
-                    if(err){
-                        console.log(err)
-                        return res.status(500).json({ message: "There's an error on the server. Please contact the administrator.", error: err.message });
-                    }
-                    console.log("berhasil")
+                // db.query(sql, (err,results2)=>{
+                //     if(err){
+                //         console.log(err)
+                //         return res.status(500).json({ message: "There's an error on the server. Please contact the administrator.", error: err.message });
+                //     }
+                //     console.log("berhasil")
 
-                    res.status(200).send(results2)
-                })
+                //     res.status(200).send(results2)
+                // })
 
             })
             
