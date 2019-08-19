@@ -92,7 +92,10 @@ module.exports = {
                         shop_id = ${data.shop_id}, Description = '${data.description}', Rating = ${data.rating}`
 
             db.query(sql, (err, results)=>{
-                if(err) res.status(500).send(err)
+                if(err) {
+
+                    res.status(500).send(err)
+                }
 
                 console.log("Masuk gak error")
                 // get product id baru
@@ -138,6 +141,9 @@ module.exports = {
                     
                     db.query(sql,[datas], (err,results3)=>{
                         if(err){
+                            for(var i = 0; i<imagepaths.length; i++){
+                                fs.unlinkSync('./public' + imagepaths[i]); 
+                            }
                             console.log(err) 
                             return res.status(500).send(err)
                         } 
@@ -156,7 +162,40 @@ module.exports = {
                 })
             })
         })
-    }
+    },
+    deleteProduct : (req,res)=>{
+        console.log(req.params.id)
+        var productid = req.params.id
+        var sql = `select imagepath from image where product_id = ${productid}`
+        db.query(sql, (err,results)=>{
+            if(err) {
+                throw err;
+            }
+       
+    
+      
+            if(results.length > 0){
+                for(var i = 0; i<results.length;i++){
+                    console.log(results[i].imagepath)
+                    fs.unlinkSync('./public' + results[i].imagepath);
+                }
+            }
+
+            sql = `delete from product where Id = ${productid}`
+            db.query(sql, (err,results2)=>{
+                if(err) {
+                    throw err;
+                }
+                
+                console.log("berhasil delete product")
+                res.status(200).send(results2)
+
+            })
+
+          
+    
+        })
+    } 
     
 
 }
