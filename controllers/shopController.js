@@ -62,7 +62,7 @@ module.exports = {
         console.log(req.params.id)
         var sql = ` select p.id, p.name, p.price, p.description, p.rating, c.name as cat, GROUP_CONCAT(i.imagepath) AS images
         from product p left join category c on p.cat_id = c.id left join image i on p.id = i.product_id where shop_id = ${req.params.id} group by p.id`
-
+        
         
         db.query(sql,(err,result)=>{
             if(err){

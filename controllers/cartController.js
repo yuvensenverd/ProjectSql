@@ -25,7 +25,8 @@ module.exports = {
     },
     addToCart : (req,res)=>{
         console.log(req.query.user)
-        var sql = `insert into cartproduct (userid, quantity, productid) values ((select userid from user where username = '${req.query.user}'),'${req.body.qty}', '${req.body.productid}')`
+        console.log(new Date())
+        var sql = `insert into cartproduct (userid, quantity, productid, lastmodified) values ((select userid from user where username = '${req.query.user}'),'${req.body.qty}', '${req.body.productid}', '${new Date().toString()}')`
         db.query(sql, (err,result)=>{
            
     
@@ -42,7 +43,7 @@ module.exports = {
     },
     updateItemCart : (req,res) => {
         console.log(req.body)
-        var sql = `UPDATE cartproduct SET quantity = ${req.body.qtyupdated} WHERE productid = ${req.body.productid} AND userid = ${req.body.userid}`
+        var sql = `UPDATE cartproduct SET quantity = ${req.body.qtyupdated}, lastmodified = '${new Date().toString()}' WHERE productid = ${req.body.productid} AND userid = ${req.body.userid}`
         db.query(sql, (err,result)=>{
            
     
