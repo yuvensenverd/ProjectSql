@@ -3,6 +3,7 @@ const {uploader} = require('../helpers/uploader')
 const fs = require('fs')
 const {encrypt}=require('../helpers/encrypts')
 const transporter= require('../helpers/mailer')
+const { createJWTToken } = require('../helpers/jwt')
 
 module.exports = {
     getUserData : (req,res)=>{
@@ -24,7 +25,9 @@ module.exports = {
        
     
             console.log("Masuk get user")
-            console.log(results)
+            console.log(results) // arrofobj
+            const token = createJWTToken({username : results[0].username, password : results[0].password})
+            results.push(token)
             res.status(200).send(results)
        
     
@@ -222,6 +225,30 @@ module.exports = {
     
                 
             res.status(200).send(results)
+    
+        })
+    },
+    loginToken : (req,res) => {
+        console.log("Masuk FUnction")
+
+        
+        var sql = `SELECT u.username,u.saldo,u.profileimg, u.phonenumber,u.email, u.residence, u.userid, u.status, u.password, s.name as shopname, r.name as userrole from user u 
+        left join role r on u.role_id = r.id  left join shop s on u.userid = s.userid
+        where username = '${req.user.username}' and password = '${req.user.password}'`
+        
+        
+        
+    
+        db.query(sql, (err,results)=>{
+            if(err) throw err;
+       
+    
+            console.log("Masuk get token user")
+            console.log(results) // arrofobj
+            const token = createJWTToken({username : results[0].username, password : results[0].password})
+            results.push(token)
+            res.status(200).send(results)
+       
     
         })
     }
