@@ -10,6 +10,7 @@ router.get('/adminuser', userController.adminGetUser)
 router.put('/emailverification', userController.emailVerification)
 router.post('/resendemail', userController.resendEmailVer)
 router.post('/logintoken',auth, userController.loginToken)
+router.put('/changeresidence', auth, userController.changeResidence)
 // router.post('/getprofile', userController.getProfileUser)
 
 module.exports = router
