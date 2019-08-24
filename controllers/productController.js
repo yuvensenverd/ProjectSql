@@ -195,7 +195,79 @@ module.exports = {
           
     
         })
-    } 
+    },
+    editimageProduct : (req,res)=>{
+        console.log("masuk editimageproduct")
+        const path = '/post/image/product'; //file save path
+        const upload = uploader(path, 'PRD').fields([{ name: 'image'}]); //uploader(path, 'default prefix')
+
+        upload(req, res, (err) => {
+            if(err){
+                console.log("Masuk")
+                return res.status(500).json({ message: 'Upload picture failed !', error: err.message });
+            }
+            //UPLOAD BERHASIL
+            var noimage = false
+            const { image } = req.files;
+            console.log(image)
+            var imagepaths =[]
+            if(image){
+
+                for(var i = 0; i< image.length; i++){
+                    var imgpath = image[i] ? path + '/' + image[i].filename : null
+                    if(imgpath){
+                        imagepaths.push(imgpath)
+                    }
+                }
+                console.log(imagepaths)
+            }else{
+                noimage = true
+            }
+            // const imagePath = image ? path + '/' + image[0].filename : null;
+            // console.log(imagePath)
+            // console.log(imagepaths)
+
+            console.log(req.body.data)
+            const data = JSON.parse(req.body.data);
+            console.log(data)
+            if(noimage == false){
+
+                data.productimg = imagepaths; // imagepaths is an array now
+                console.log(data)
+            }
+
+            var sql = `select imagepath from image where product_id = ${data.id}`
+            db.query(sql, (err,results)=>{
+                if(err) throw err;
+                // console.log(results) // ARR OF OBJ
+                console.log(results)
+                for(var i = 0; i<data.index.length; i++){
+                    fs.unlinkSync('./public' + results[data.index[i]].imagepath);
+                    sql = `update image set imagepath = '${data.productimg[i]}' where imagepath = '${results[data.index[i]].imagepath}'`
+                    db.query(sql, (err, results2)=>{
+                        if(err)throw err;
+
+                        console.log("Berhasil diubah")
+
+                    })
+                }
+                
+                res.status(200).send("Success")
+            })
+            
+        })
+
+    },
+    editProduct : (req,res) =>{
+        var id = req.params.id
+        console.log(req.body)
+        var sql = `update product set ? where Id = ${id}`
+        db.query(sql,req.body, (err,results)=>{
+            if(err) throw err;
+            // console.log(results) // ARR OF OBJ
+            res.status(200).send(results)
+        })
+    }
     
 
 }

@@ -4,8 +4,8 @@ const {cartController} = require('../controllers')
 const {auth} = require('../helpers/auth')
 
 router.get('/getcart',auth, cartController.getUserCart)
-router.post('/addcart',cartController.addToCart)
-router.post('/updatecart', cartController.updateItemCart)
-router.get('/deletecart/:id/:userid', cartController.deleteItemCart)
+router.post('/addcart',auth, cartController.addToCart)
+router.post('/updatecart',auth, cartController.updateItemCart)
+router.get('/deletecart/:id/:userid',auth, cartController.deleteItemCart)
 
 module.exports = router
