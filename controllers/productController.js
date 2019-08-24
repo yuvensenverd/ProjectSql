@@ -267,6 +267,71 @@ module.exports = {
             // console.log(results) // ARR OF OBJ
             res.status(200).send(results)
         })
+    },
+    addImage : (req,res) =>{
+        const path = '/post/image/product'; //file save path
+        const upload = uploader(path, 'PRD').fields([{ name: 'image'}]); //uploader(path, 'default prefix')
+
+        upload(req, res, (err) => {
+            if(err){
+                console.log("Masuk")
+                return res.status(500).json({ message: 'Upload picture failed !', error: err.message });
+            }
+            //UPLOAD BERHASIL
+            var noimage = false
+            const { image } = req.files;
+            console.log(image)
+            var imagepaths =[]
+            if(image){
+
+                for(var i = 0; i< image.length; i++){
+                    var imgpath = image[i] ? path + '/' + image[i].filename : null
+                    if(imgpath){
+                        imagepaths.push(imgpath)
+                    }
+                }
+                console.log(imagepaths)
+            }else{
+                noimage = true
+            }
+            // const imagePath = image ? path + '/' + image[0].filename : null;
+            // console.log(imagePath)
+            // console.log(imagepaths)
+
+            const data = JSON.parse(req.body.data);
+  
+            if(noimage == false){
+
+                data.productimg = imagepaths; // imagepaths is an array now
+                console.log(data)
+            }
+
+            var datas = []
+            for(var i = 0; i<data.productimg.length;i++){
+                // datas.push({
+                //     product_id : results2[0].id,
+                //     imagepath : data.productimg[i]
+                // })
+                datas.push([data.id, data.productimg[i]])
+            }
+            console.log(datas)
+
+            //SQL
+            sql = `INSERT INTO image (product_id, imagepath) VALUES ?`
+            db.query(sql,[datas], (err,results)=>{
+                if(err){
+                    for(var i = 0; i < data.productimg.length ; i++){
+                        fs.unlinkSync('./public' + data.productimg[i]);
+                    }
+                    throw err;
+                } 
+                // console.log(results) // ARR OF OBJ
+                res.status(200).send("Success")
+            })
+            
+
+            
+        })
     }
     
 

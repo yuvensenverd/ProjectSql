@@ -8,5 +8,6 @@ router.get('/getproduct',productController.getProductDetails)
 router.post('/addproduct',auth, productController.addProduct)
 router.post('/editimage',auth, productController.editimageProduct)
 router.put('/editproduct/:id',auth, productController.editProduct)
+router.post('/addimage', auth, productController.addImage)
 router.get('/deleteproduct/:id', auth, productController.deleteProduct)
 module.exports = router;
