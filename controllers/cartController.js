@@ -1,4 +1,5 @@
 var db = require('../database')
+var moment = require('moment')
 
 module.exports = {
     getUserCart : (req,res)=>{
@@ -25,11 +26,8 @@ module.exports = {
     },
     addToCart : (req,res)=>{
         console.log(req.query.user)
-        console.log(new Date())
-        var sql = `insert into cartproduct (userid, quantity, productid, lastmodified) values ((select userid from user where username = '${req.query.user}'),'${req.body.qty}', '${req.body.productid}', '${new Date().toString()}')`
+        var sql = `insert into cartproduct (userid, quantity, productid, lastmodified) values ((select userid from user where username = '${req.query.user}'),'${req.body.qty}', '${req.body.productid}', '${moment().format('YYYY-MM-DD hh:mm:ss')}')`
         db.query(sql, (err,result)=>{
-           
-    
             if(err) res.status(500).send(err);
     
             
@@ -43,7 +41,7 @@ module.exports = {
     },
     updateItemCart : (req,res) => {
         console.log(req.body)
-        var sql = `UPDATE cartproduct SET quantity = ${req.body.qtyupdated}, lastmodified = '${new Date().toString()}' WHERE productid = ${req.body.productid} AND userid = ${req.body.userid}`
+        var sql = `UPDATE cartproduct SET quantity = ${req.body.qtyupdated}, lastmodified = '${moment().format('YYYY-MM-DD hh:mm:ss')}' WHERE productid = ${req.body.productid} AND userid = ${req.body.userid}`
         db.query(sql, (err,result)=>{
            
     
@@ -60,8 +58,6 @@ module.exports = {
     },
     deleteItemCart : (req,res) =>{
         console.log("Delete masuk cart ")
-        console.log(req.params.id)
-        console.log(req.params.userid)
         var sql = `delete from cartproduct where productid = ${req.params.id} and userid = ${req.params.userid}`
         db.query(sql, (err,result)=>{
             if(err) res.status(500).send(err);
@@ -70,6 +66,44 @@ module.exports = {
             console.log("Delete Cart Success")
          
             res.status(200).send(result)
+        })
+    },
+    addTransaction : (req,res) =>{
+        console.log(req.body)
+        var datasum = {
+            transactiondate : moment().format('YYYY-MM-DD hh:mm:ss'),
+            totalprice : req.body.totalprice,
+            userid : req.body.userid
+        }
+        var sql = `insert into sumtransaction set ?`
+        db.query(sql,datasum, (err,result)=>{
+            if(err) res.status(500).send(err);
+
+          
+          
+            var transactionid = result.insertId
+            console.log(transactionid)
+            var listproduct = []
+            for(var i = 0; i< req.body.listproduct.length; i++){
+                listproduct.push([...req.body.listproduct[i], transactionid])
+            }
+            console.log(listproduct)
+
+            sql = `insert into transactionitem (productid, price, qty, transactionid) VALUES ?`
+            db.query(sql,[listproduct], (err,results2)=>{
+                if(err){
+                    throw err;
+                } 
+                console.log("insert transactionitem success")
+                sql = `delete from cartproduct where userid = ${req.body.userid}`
+                db.query(sql, (err,result3)=>{
+                    if(err) res.status(500).send(err);
+        
+                    console.log("Delete Cart Transaction Success")
+                    
+                    res.status(200).send(result3)
+                })
+            })
         })
     }
 }

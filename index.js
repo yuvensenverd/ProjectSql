@@ -3,7 +3,7 @@ var cors = require('cors')
 var bodyParser = require('body-parser')
 var app = express()
 var port = 1998
-const { cartRouter,productRouter,shopRouter,userRouter,categoryRouter,bannerRouter } = require('./routers')
+const { cartRouter,productRouter,shopRouter,userRouter,categoryRouter,bannerRouter,transactionRouter  } = require('./routers')
 
 
 
@@ -17,6 +17,7 @@ app.use('/shop', shopRouter)
 app.use('/user', userRouter)
 app.use('/category', categoryRouter)
 app.use('/banner', bannerRouter)
+app.use('/transaction' , transactionRouter)
 
 
 app.listen(port, ()=> console.log(` Api aktif di port  ${port} `))

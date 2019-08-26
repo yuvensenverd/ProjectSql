@@ -308,10 +308,7 @@ module.exports = {
 
             var datas = []
             for(var i = 0; i<data.productimg.length;i++){
-                // datas.push({
-                //     product_id : results2[0].id,
-                //     imagepath : data.productimg[i]
-                // })
+                
                 datas.push([data.id, data.productimg[i]])
             }
             console.log(datas)
