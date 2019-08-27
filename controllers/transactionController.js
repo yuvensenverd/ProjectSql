@@ -67,14 +67,62 @@ module.exports = {
     },
     getNotificationLength : (req,res) =>{
         console.log(req.params.id)
+        console.log("Masuk notiflen")
         var sql = `select count(ti.id) as NOTIFLEN from  transactionitem ti join sumtransaction st on ti.transactionid = st.id 
-        where (ti.status = 'Confirmed' OR ti.status = 'Unconfirmed') AND st.userid = 1`
+        where (ti.status = 'Confirmed' OR ti.status = 'Unconfirmed') AND st.userid = ${req.params.id}`
         db.query(sql,(err,results)=>{
             if(err) throw err;
 
             console.log(sql)
 
             console.log("Product Updated Success")
+            res.status(200).send(results)
+        })
+    },
+    getUserTransactionHistory : (req,res) =>{
+        console.log(req.params.id)
+        var sql = `select st.transactiondate, st.totalprice, st.userid, st.id as transid from sumtransaction st 
+        where st.userid = ${req.params.id} 
+        order by transid `
+
+        db.query(sql,(err,results)=>{
+            if(err) throw err;
+
+            console.log(sql)
+
+            console.log("Get History Success")
+            res.status(200).send(results)
+        })
+    },
+    getTransactionDetail : (req,res) =>{
+        console.log(req.params.id)
+        console.log(req.params.tid)
+        //and (ti.status = 'Confirmed' OR ti.status = 'Success')
+        var sql = `select p.name as productname, ti.status, ti.transactionid, ti.price, ti.qty, GROUP_CONCAT(i.imagepath) as images, s.name from transactionitem ti
+        join product p on ti.productid = p.Id join image i on i.product_id = p.Id join shop s on p.shop_id =  s.userid join sumtransaction st
+        on st.id = ti.transactionid where st.userid = ${req.params.id} and ti.transactionid = ${req.params.tid}
+        group by ti.id`
+
+        db.query(sql,(err,results)=>{
+            if(err) throw err;
+
+            console.log(sql)
+
+            console.log("Get Detail Success")
+            res.status(200).send(results)
+        })
+    },
+    getHistoryShop : (req,res) =>{
+        console.log(req.params.id)
+        var sql = `select st.id, st.transactiondate, u.username as buyer, ti.status, p.name, ti.qty, ti.price, GROUP_CONCAT(i.imagepath) as images
+        from sumtransaction st join transactionitem ti on st.id = ti.transactionid join product p on ti.productid = p.Id join
+        image i on i.product_id = p.Id join user u on st.userid = u.userid where p.shop_id = ${req.params.id} and (ti.status = 'Confirmed' OR ti.status = 'Success')
+        group by ti.id `
+        db.query(sql,(err,results)=>{
+            if(err) throw err;
+
+
+            console.log("Get Product Shop History Success")
             res.status(200).send(results)
         })
     }
