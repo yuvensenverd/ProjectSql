@@ -40,6 +40,18 @@ module.exports = {
             res.status(200).send(results)
         })
     },
+    cancelProduct : (req,res) =>{
+        var id = req.params.id
+        var sql = `update transactionitem set status = 'Cancelled' where id = ${id}`
+        db.query(sql,(err,results)=>{
+            if(err) throw err;
+
+            console.log(sql)
+
+            console.log("Cancel Product")
+            res.status(200).send(results)
+        })
+    },
     successProduct : (req,res) =>{
         var id = req.params.id
         var sql = `update transactionitem set status = 'Success' where id = ${id}`
@@ -82,7 +94,7 @@ module.exports = {
     getUserTransactionHistory : (req,res) =>{
         console.log(req.params.id)
         var sql = `select st.transactiondate, st.totalprice, st.userid, st.id as transid from sumtransaction st 
-        where st.userid = ${req.params.id} 
+        where st.userid = ${req.params.id} AND st.deleted = 0
         order by transid `
 
         db.query(sql,(err,results)=>{
@@ -114,15 +126,38 @@ module.exports = {
     },
     getHistoryShop : (req,res) =>{
         console.log(req.params.id)
-        var sql = `select st.id, st.transactiondate, u.username as buyer, ti.status, p.name, ti.qty, ti.price, GROUP_CONCAT(i.imagepath) as images
+        var sql = `select ti.id as transid, st.id as sumid, st.transactiondate, u.username as buyer, ti.status, p.name, ti.qty, ti.price, GROUP_CONCAT(i.imagepath) as images
         from sumtransaction st join transactionitem ti on st.id = ti.transactionid join product p on ti.productid = p.Id join
-        image i on i.product_id = p.Id join user u on st.userid = u.userid where p.shop_id = ${req.params.id} and (ti.status = 'Confirmed' OR ti.status = 'Success')
+        image i on i.product_id = p.Id join user u on st.userid = u.userid where p.shop_id = ${req.params.id} and (ti.status = 'Confirmed' OR ti.status = 'Success' OR ti.status = 'Cancelled')
+        and ti.deleted = 0
         group by ti.id `
         db.query(sql,(err,results)=>{
             if(err) throw err;
 
 
             console.log("Get Product Shop History Success")
+            res.status(200).send(results)
+        })
+    },
+    deleteUserTransaction : (req,res) =>{
+        console.log(req.params.id)
+        var sql = `update sumtransaction st set st.deleted = 1 where st.id = ${req.params.id}`
+        db.query(sql,(err,results)=>{
+            if(err) throw err;
+
+
+            console.log("Update Status Delete Transaction Success")
+            res.status(200).send(results)
+        })
+    },
+    transactionItemDelete : (req,res) =>{
+        console.log(req.params.id)
+        var sql = `update transactionitem ti set ti.deleted = 1 where ti.id = ${req.params.id}`
+        db.query(sql,(err,results)=>{
+            if(err) throw err;
+
+
+            console.log("Update Status Delete Transaction Shop Success")
             res.status(200).send(results)
         })
     }

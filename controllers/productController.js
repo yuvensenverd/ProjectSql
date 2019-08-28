@@ -24,13 +24,13 @@ module.exports = {
     getProductDetails : (req,res)=>{
         var sql = `select p.id, p.name, p.price, p.description, s.name as shopname, s.description as shopdesc, p.rating, 
         GROUP_CONCAT(i.imagepath) AS images, c.name as category from product p  left join category c on p.cat_id = c.id  left join shop s on 
-        p.shop_id = s.userid left join image i on p.id= i.product_id `
+        p.shop_id = s.userid left join image i on p.id= i.product_id where p.deleted = 0 `
         
         if(req.query.cat){
-            sql += `where c.name = '${req.query.cat}' `
+            sql += `and c.name = '${req.query.cat}'  `
         }
         if(req.query.id){
-            sql += `where p.id = '${req.query.id}' `
+            sql += `and p.id = '${req.query.id}' `
         }
         sql = sql + ` group by p.id`
         
@@ -166,33 +166,15 @@ module.exports = {
     deleteProduct : (req,res)=>{
         console.log(req.params.id)
         var productid = req.params.id
-        var sql = `select imagepath from image where product_id = ${productid}`
+        var sql = `update product p set p.deleted = 1 where p.Id = ${productid}`
         db.query(sql, (err,results)=>{
-            if(err) {
-                throw err;
-            }
-       
-    
-      
-            if(results.length > 0){
-                for(var i = 0; i<results.length;i++){
-                    console.log(results[i].imagepath)
-                    fs.unlinkSync('./public' + results[i].imagepath);
-                }
+            if(err){
+                console.log("Masuk")
+                return res.status(500).send("Delete Failed");
             }
 
-            sql = `delete from product where Id = ${productid}`
-            db.query(sql, (err,results2)=>{
-                if(err) {
-                    throw err;
-                }
-                
-                console.log("berhasil delete product")
-                res.status(200).send(results2)
-
-            })
-
-          
+            console.log("delete success")
+            res.status(200).send(results)
     
         })
     },

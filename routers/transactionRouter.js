@@ -12,4 +12,7 @@ router.get('/getnotiflen/:id', transactionController.getNotificationLength)
 router.get('/usertransaction/:id',auth, transactionController.getUserTransactionHistory)
 router.get('/detailtransaction/:id/:tid',auth, transactionController.getTransactionDetail)
 router.get('/shophistory/:id',auth, transactionController.getHistoryShop)
+router.get('/deletetransaction/:id',auth, transactionController.deleteUserTransaction)
+router.get('/cancelproduct/:id',auth, transactionController.cancelProduct)
+router.get('/tidelete/:id',auth, transactionController.transactionItemDelete)
 module.exports = router
