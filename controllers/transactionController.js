@@ -59,6 +59,10 @@ module.exports = {
         db.query(sql,(err,results)=>{
             if(err) throw err;
             console.log("Update Success")
+
+            if(data.rating === 0){
+                return res.status(200).send(results)
+            }
             sql = `insert into review set ?`
         
             db.query(sql,data, (err,results)=>{
@@ -167,5 +171,20 @@ module.exports = {
             console.log("Update Status Delete Transaction Shop Success")
             res.status(200).send(results)
         })
-    }
+    },
+    getShopNotificationLength : (req,res) =>{
+        console.log(req.params.id)
+        console.log("Masuk SHOSPHSOSHOSHSOHnotiflen")
+        var sql = `select count(ti.id) as SHOPNOTIFLEN from  transactionitem ti join sumtransaction st on ti.transactionid = st.id join
+        product p on p.Id = ti.productid 
+        where ti.status = 'Unconfirmed' AND p.Shop_id = ${req.params.id}`
+        db.query(sql,(err,results)=>{
+            if(err) throw err;
+
+            console.log(sql)
+
+            console.log("Get Shop Notif Success ")
+            res.status(200).send(results)
+        })
+    },
 }
