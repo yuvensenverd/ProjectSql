@@ -22,9 +22,9 @@ module.exports = {
         })
     },
     getProductDetails : (req,res)=>{
-        var sql = `select p.id, p.name, p.price, p.description, s.name as shopname, s.description as shopdesc, p.rating, 
+        var sql = `select p.id, p.name, p.price, p.description, s.name as shopname, s.description as shopdesc, Round(count(r.productid)/2, 0) as ReviewCount, avg(r.rating) as avgrating,
         GROUP_CONCAT(i.imagepath) AS images, c.name as category from product p  left join category c on p.cat_id = c.id  left join shop s on 
-        p.shop_id = s.userid left join image i on p.id= i.product_id where p.deleted = 0 `
+        p.shop_id = s.userid left join image i on p.id= i.product_id left join review r on r.productid = p.Id where p.deleted = 0 `
         
         if(req.query.cat){
             sql += `and c.name = '${req.query.cat}'  `
@@ -311,6 +311,15 @@ module.exports = {
 
             
         })
+    },
+    getReviews : (req, res)=>{
+        var sql = `select u.username, r.rating,r.productid, r.description from review r join user u on r.userid = u.userid where r.productid = ${req.params.id}`
+        db.query(sql, (err,results)=>{
+            if(err) throw err;
+            // console.log(results) // ARR OF OBJ
+            res.status(200).send(results)
+        })
+
     }
     
 

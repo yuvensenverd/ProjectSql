@@ -54,14 +54,21 @@ module.exports = {
     },
     successProduct : (req,res) =>{
         var id = req.params.id
+        var data = req.body
         var sql = `update transactionitem set status = 'Success' where id = ${id}`
         db.query(sql,(err,results)=>{
             if(err) throw err;
-
-            console.log(sql)
-
-            console.log("Product Updated Success")
-            res.status(200).send(results)
+            console.log("Update Success")
+            sql = `insert into review set ?`
+        
+            db.query(sql,data, (err,results)=>{
+                if(err) throw err;
+    
+                console.log('Insert Review Product Success')
+    
+                console.log("Cancel Product")
+                res.status(200).send(results)
+            })
         })
     },
     getConfirmedProduct : (req,res) =>{
