@@ -9,7 +9,6 @@ router.get('/getunconfirmedshop/:id', auth, transactionController.getConfirmProd
 router.get('/confirmproduct/:id', auth, transactionController.confirmProduct)
 router.post('/successproduct/:id', auth, transactionController.successProduct)
 router.get('/getnotiflen/:id', transactionController.getNotificationLength)
-router.get('/shopnotiflen/:id', transactionController.getShopNotificationLength)
 router.get('/usertransaction/:id',auth, transactionController.getUserTransactionHistory)
 router.get('/detailtransaction/:id/:tid',auth, transactionController.getTransactionDetail)
 router.get('/shophistory/:id',auth, transactionController.getHistoryShop)
