@@ -27,8 +27,8 @@ module.exports = {
         }
         var itempage = 15 // modify item / page
         var offset = (req.query.pagenumber - 1) * itempage
-        var sql = `select p.id, p.name, p.price, p.description, s.name as shopname, s.description as shopdesc, Round(count(r.productid)/2, 0) as ReviewCount, avg(r.rating) as avgrating,
-        GROUP_CONCAT(i.imagepath) AS images, c.name as category from product p  left join category c on p.cat_id = c.id  left join shop s on 
+        var sql = `select p.id, p.name, p.price, p.description, s.name as shopname, s.description as shopdesc, count(distinct r.id) as ReviewCount, avg(r.rating) as avgrating,
+        GROUP_CONCAT(distinct i.imagepath) AS images, c.name as category from product p  left join category c on p.cat_id = c.id  left join shop s on 
         p.shop_id = s.userid left join image i on p.id= i.product_id left join review r on r.productid = p.Id where p.deleted = 0 `
         
         if(req.query.cat){
@@ -36,6 +36,9 @@ module.exports = {
         }
         if(req.query.id){
             sql += `and p.id = '${req.query.id}' `
+        }
+        if(req.query.keyword){
+            sql += `and p.name like '%${req.query.keyword}%' `
         }
         sql = sql + ` group by p.id`
         sql = sql + ` limit ${offset}, ${itempage}`
@@ -46,7 +49,7 @@ module.exports = {
                 console.log(err)
                 res.status(500).send(err);
             } 
-            console.log("getget")
+        
            
     
           
@@ -172,7 +175,17 @@ module.exports = {
         })
     },
     getProductCount : (req,res)=>{
-        var sql = `select count(p.id) as count from product p where p.deleted = 0`
+        if(!req.query.keyword){
+            req.query.keyword = ''
+        }
+        // if(!req.query.pagenumber){
+        //     req.query.pagenumber = 1
+        // }
+        // var itempage = 15 // modify item / page
+        // var offset = (req.query.pagenumber - 1) * itempage
+        // console.log("REQ QUERY KEYWORD " + req.query.keyword)
+        var sql = `select count(p.id) as count from product p where p.deleted = 0 and p.name like '%${req.query.keyword}%'`
+        // sql = sql + ` limit ${offset}, ${itempage}`
         db.query(sql, (err,results)=>{
             if(err) throw err;
             // console.log(results) // ARR OF OBJ
