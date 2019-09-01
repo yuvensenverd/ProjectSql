@@ -21,7 +21,12 @@ module.exports = {
         
     
         db.query(sql, (err,results)=>{
-            if(err) throw err;
+            if(err){
+                throw err
+            } 
+            if(results.length === 0){
+                return res.status(500).send({status : 'error', err : 'USERNAME OR PASSWORD INCORRECT'})
+            }
        
     
             console.log("Masuk get user")
@@ -241,7 +246,10 @@ module.exports = {
     
         db.query(sql, (err,results)=>{
             if(err) throw err;
-       
+            
+            if(results.length === 0){
+                return res.status(500).send({status : 'error', err : 'Token Invalid , Please Relog in the Login Page'})
+            }
     
             console.log("Masuk get token user")
             console.log(results) // arrofobj
@@ -275,41 +283,90 @@ module.exports = {
        
     
         })
-    }
+
+    },
+    onUserTopUp : (req,res) =>{
+        console.log(req.body)
+        var sql = `UPDATE user u set u.saldo = u.saldo+${req.body.topup} where u.userid = ${req.body.userid}`
+        db.query(sql, (err,results)=>{
+            if(err) throw err;
+
+            sql = `SELECT u.username,u.saldo,u.profileimg, u.phonenumber,u.email, u.residence, u.userid, u.password, s.name as shopname, r.name as userrole from user u 
+            left join role r on u.role_id = r.id  left join shop s on u.userid = s.userid
+            where u.userid = ${req.body.userid}`
+        
+
+            db.query(sql, (err,results2)=>{
+            if(err) throw err;
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // getProfileUser : (req,res)=>{
- 
-    //     var sql = `select username, saldo, password, phonenumber, residence from user where userid = ${req.body.id}`
     
+            res.status(200).send(results2)
+
+            })
     
-    //     db.query(sql, (err,results)=>{
-    //         if(err)   throw err ;
-    //         console.log("Berhasil get")
-       
-    
+        })
+    },
+    onChangePassword : (req,res) =>{
+        var sql = `select u.password from user u where u.userid = ${req.body.userid}`
+        db.query(sql, (err,results)=>{
+            if(err) throw err;
+            
+            console.log(results[0])
+            console.log(encrypt(req.body.oldpass))
+            if(results[0].password === encrypt(req.body.oldpass)){ // confirm pass lama
+                var encrypted = encrypt(req.body.password)
+                req.body.password = encrypted
+                console.log(encrypted)
+                var sql = `update user u set u.password = '${req.body.password}' where u.userid = ${req.body.userid}`
+                db.query(sql, (err,results2)=>{
+                    if(err) throw err;
+            
+                    sql = `SELECT u.username,u.saldo,u.profileimg, u.phonenumber,u.email, u.residence, u.userid, u.password, s.name as shopname, r.name as userrole from user u 
+                    left join role r on u.role_id = r.id  left join shop s on u.userid = s.userid
+                    where u.userid = ${req.body.userid}`
                 
-    //         res.status(200).send(results)
-       
+        
+                    db.query(sql, (err,results3)=>{
+                    if(err) throw err;
+        
+        
+            
+                    res.status(200).send(results3)
+        
+                    })
+                        
+                })
+
+
+            }else{
+                res.status(500).send({status : 'error', err : 'OLD Password incorrect!'})
+            }
     
-    //     })
-    // }
     
+        })
+
+
+  
+    },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   
         
 }

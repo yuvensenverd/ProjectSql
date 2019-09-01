@@ -26,7 +26,13 @@ module.exports = {
             req.query.pagenumber = 1
         }
         var itempage = 15 // modify item / page
-        var offset = (req.query.pagenumber - 1) * itempage
+     
+        if(req.query.pagenumber !== 'all'){
+
+            var offset = (req.query.pagenumber - 1) * itempage
+        }
+        console.log(req.query.pagenumber)
+        
         var sql = `select p.id, p.name, p.price, p.description, s.name as shopname, s.description as shopdesc, count(distinct r.id) as ReviewCount, avg(r.rating) as avgrating,
         GROUP_CONCAT(distinct i.imagepath) AS images, c.name as category from product p  left join category c on p.cat_id = c.id  left join shop s on 
         p.shop_id = s.userid left join image i on p.id= i.product_id left join review r on r.productid = p.Id where p.deleted = 0 `
@@ -41,7 +47,13 @@ module.exports = {
             sql += `and p.name like '%${req.query.keyword}%' `
         }
         sql = sql + ` group by p.id`
-        sql = sql + ` limit ${offset}, ${itempage}`
+
+      
+        if(req.query.pagenumber !== 'all'){
+
+            sql = sql + ` limit ${offset}, ${itempage}`
+        }
+        
         
     
         db.query(sql, (err,results)=>{
@@ -51,7 +63,7 @@ module.exports = {
             } 
         
            
-    
+            console.log(sql)
           
             res.status(200).send(results)
        
@@ -100,7 +112,7 @@ module.exports = {
             }
             
             var sql = `INSERT INTO product set name = '${data.name}', price = ${data.price}, cat_id = (select id from category where name = '${data.cat_name}'),
-                        shop_id = ${data.shop_id}, Description = '${data.description}', Rating = ${data.rating}`
+                        shop_id = ${data.shop_id}, Description = '${data.description}'`
 
             db.query(sql, (err, results)=>{
                 if(err) {
@@ -342,7 +354,8 @@ module.exports = {
         })
     },
     getReviews : (req, res)=>{
-        var sql = `select u.username, r.rating,r.productid, r.description from review r join user u on r.userid = u.userid where r.productid = ${req.params.id}`
+        var sql = `select u.username, r.rating,r.productid, r.description from review r
+         join user u on r.userid = u.userid where r.productid = ${req.params.id} order by r.id desc limit 5`
         db.query(sql, (err,results)=>{
             if(err) throw err;
             // console.log(results) // ARR OF OBJ
