@@ -38,6 +38,17 @@ module.exports = {
     
         })
     },
+    checkRegisterUser : (req,res)=>{
+        var sql = `select u.userid from user u where u.username = '${req.body.name}' `
+        db.query(sql, (err,results)=>{
+            if(err) throw err;
+    
+    
+                
+            res.status(200).send(results)
+    
+        })
+    },
     registerUser : (req,res)=>{
         
 
@@ -285,9 +296,9 @@ module.exports = {
         })
 
     },
-    onUserTopUp : (req,res) =>{
+    onUserTransaction : (req,res) =>{
         console.log(req.body)
-        var sql = `UPDATE user u set u.saldo = u.saldo+${req.body.topup} where u.userid = ${req.body.userid}`
+        var sql = `UPDATE user u set u.saldo = u.saldo+${req.body.balance} where u.userid = ${req.body.userid}`
         db.query(sql, (err,results)=>{
             if(err) throw err;
 

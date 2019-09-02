@@ -3,7 +3,7 @@ var moment = require('moment')
 
 module.exports = {
     getUserCart : (req,res)=>{
-        var sql = ` select ca.name, p.id, GROUP_CONCAT(i.imagepath) AS images, p.name, p.price,
+        var sql = ` select ca.name, p.id, GROUP_CONCAT(distinct i.imagepath) AS images, p.name, p.price,
         c.quantity as qty, shop.name as shopname from product p 
         left join cartproduct c on p.id = c.productid left join category ca on p.cat_id = ca.id left join shop on p.shop_id = shop.userid 
         left join user u on u.userid = c.userid left join image i on p.id = i.product_id where u.username = '${req.query.user}'

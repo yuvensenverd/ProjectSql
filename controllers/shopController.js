@@ -60,8 +60,9 @@ module.exports = {
     },
     getProductStore : (req,res)=>{
         console.log(req.params.id)
-        var sql = ` select p.id, p.name, p.price, p.description, c.name as cat, GROUP_CONCAT(i.imagepath) AS images
-        from product p left join category c on p.cat_id = c.id left join image i on p.id = i.product_id where shop_id = ${req.params.id} and p.deleted = 0 group by p.id`
+        var sql = ` select p.id, p.name, p.price, p.description, count(distinct r.id) as ReviewCount, avg(r.rating) as avgrating, c.name as cat, GROUP_CONCAT(distinct i.imagepath) AS images
+        from product p left join category c on p.cat_id = c.id left join image i on p.id = i.product_id left join review r on r.productid = p.Id
+        where shop_id = ${req.params.id} and p.deleted = 0 group by p.id`
         
         
         db.query(sql,(err,result)=>{

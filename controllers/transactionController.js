@@ -171,6 +171,21 @@ module.exports = {
             console.log("Update Status Delete Transaction Shop Success")
             res.status(200).send(results)
         })
+    },
+    getProductSold : (req,res)=>{
+        var sql = `select count(distinct ti.id) as productSold
+        from sumtransaction st join transactionitem ti on st.id = ti.transactionid join product p on ti.productid = p.Id join
+        image i on i.product_id = p.Id join user u on st.userid = u.userid where p.shop_id = ${req.params.id} and (ti.status = 'Confirmed' OR ti.status = 'Success')
+        and ti.deleted = 0`
+
+        db.query(sql,(err,results)=>{
+            if(err) throw err;
+
+
+            console.log("Get Product Sold Count")
+            res.status(200).send(results)
+        })
+
     }
   
 }
