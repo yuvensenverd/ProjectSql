@@ -14,6 +14,7 @@ router.post('/logintoken',auth, userController.loginToken)
 router.put('/changeresidence', auth, userController.changeResidence)
 router.put('/onusertransaction', auth, userController.onUserTransaction)
 router.put('/onchangepass', auth, userController.onChangePassword)
+router.put('/adminedit/:id', auth, userController.adminEditUser)
 // router.post('/getprofile', userController.getProfileUser)
 
 module.exports = router

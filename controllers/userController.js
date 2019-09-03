@@ -307,14 +307,7 @@ module.exports = {
             where u.userid = ${req.body.userid}`
         
 
-            db.query(sql, (err,results2)=>{
-            if(err) throw err;
-
-
-    
-            res.status(200).send(results2)
-
-            })
+            
     
         })
     },
@@ -360,24 +353,39 @@ module.exports = {
 
   
     },
+    adminEditUser : (req,res) =>{
+        console.log(req.body)
+        var sql = `select * from role`
+        db.query(sql,req.body, (err,results2)=>{
+            if(err) throw err;
+            var find = false
+            for(var i = 0 ; i<results2.length ; i++){
+                if(results2[i].name === req.body.role){
+                    req.body.role_id = results2[i].id
+                    find = true
+                    console.log(req.body.role_id)
+                    delete req.body.role
+                    break;
+                }
+            }
+            if(find === false){
+                return res.status(500).send({status : 'error', err : 'Role Not Found!'})
+            }
+            console.log(req.body)
+            sql = `update user u set ? where u.userid = ${req.params.id}`
+            db.query(sql,req.body, (err,results)=>{
+                if(err) throw err;
 
 
 
+                res.status(200).send(results)
 
+            })
 
+    
+       
 
-
-
-
-
-
-
-
-
-
-
-
-
-   
+        })
         
+    }
 }
