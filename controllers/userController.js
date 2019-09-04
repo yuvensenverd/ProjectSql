@@ -297,6 +297,8 @@ module.exports = {
 
     },
     onUserTransaction : (req,res) =>{
+   
+        req.body.balance = parseInt(req.body.balance)
         console.log(req.body)
         var sql = `UPDATE user u set u.saldo = u.saldo+${req.body.balance} where u.userid = ${req.body.userid}`
         db.query(sql, (err,results)=>{
@@ -305,6 +307,15 @@ module.exports = {
             sql = `SELECT u.username,u.saldo,u.profileimg, u.phonenumber,u.email, u.residence, u.userid, u.password, s.name as shopname, r.name as userrole from user u 
             left join role r on u.role_id = r.id  left join shop s on u.userid = s.userid
             where u.userid = ${req.body.userid}`
+
+            db.query(sql, (err,results2)=>{
+                if(err) throw err;
+        
+        
+                    
+                res.status(200).send(results2)
+        
+            })
         
 
             

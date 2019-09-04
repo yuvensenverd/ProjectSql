@@ -15,5 +15,8 @@ router.get('/shophistory/:id',auth, transactionController.getHistoryShop)
 router.get('/deletetransaction/:id',auth, transactionController.deleteUserTransaction)
 router.get('/cancelproduct/:id',auth, transactionController.cancelProduct)
 router.get('/tidelete/:id',auth, transactionController.transactionItemDelete)
+router.get('/manualtransfer',auth, transactionController.getManualTransfer)
 router.get('/getproductsold/:id',auth, transactionController.getProductSold)
+router.get('/adminapprove/:id',auth, transactionController.adminApprove)
+router.get('/adminreject/:id',auth, transactionController.adminReject)
 module.exports = router

@@ -1,5 +1,7 @@
 var db = require('../database')
 var moment = require('moment')
+const {uploader} = require('../helpers/uploader')
+const fs = require('fs')
 
 module.exports = {
     getUserCart : (req,res)=>{
@@ -69,41 +71,106 @@ module.exports = {
         })
     },
     addTransaction : (req,res) =>{
-        console.log(req.body)
-        var datasum = {
-            transactiondate : moment().format('YYYY-MM-DD hh:mm:ss'),
-            totalprice : req.body.totalprice,
-            userid : req.body.userid
-        }
-        var sql = `insert into sumtransaction set ?`
-        db.query(sql,datasum, (err,result)=>{
-            if(err) res.status(500).send(err);
-
-          
-          
-            var transactionid = result.insertId
-            console.log(transactionid)
-            var listproduct = []
-            for(var i = 0; i< req.body.listproduct.length; i++){
-                listproduct.push([...req.body.listproduct[i], transactionid])
+        console.log("Masuk")
+      
+       
+        if(req.body.gopay){
+            delete req.body.gopay
+            var datasum = {
+                transactiondate : moment().format('YYYY-MM-DD hh:mm:ss'),
+                totalprice : req.body.totalprice,
+                userid : req.body.userid
             }
-            console.log(listproduct)
-
-            sql = `insert into transactionitem (productid, price, qty, transactionid) VALUES ?`
-            db.query(sql,[listproduct], (err,results2)=>{
-                if(err){
-                    throw err;
-                } 
-                console.log("insert transactionitem success")
-                sql = `delete from cartproduct where userid = ${req.body.userid}`
-                db.query(sql, (err,result3)=>{
-                    if(err) res.status(500).send(err);
-        
-                    console.log("Delete Cart Transaction Success")
-                    
-                    res.status(200).send(result3)
+            var sql = `insert into sumtransaction set ?`
+            db.query(sql,datasum, (err,result)=>{
+                if(err) res.status(500).send(err);
+    
+              
+              
+                var transactionid = result.insertId
+                console.log(transactionid)
+                var listproduct = []
+                for(var i = 0; i< req.body.listproduct.length; i++){
+                    listproduct.push([...req.body.listproduct[i], transactionid])
+                }
+                console.log(listproduct)
+    
+                sql = `insert into transactionitem (productid, price, qty, transactionid) VALUES ?`
+                db.query(sql,[listproduct], (err,results2)=>{
+                    if(err){
+                        throw err;
+                    } 
+                    console.log("insert transactionitem success")
+                    sql = `delete from cartproduct where userid = ${req.body.userid}`
+                    db.query(sql, (err,result3)=>{
+                        if(err) res.status(500).send(err);
+            
+                        console.log("Delete Cart Transaction Success")
+                        
+                        res.status(200).send(result3)
+                    })
                 })
             })
-        })
+        }else{
+            console.log("Uplaod")
+            // ADD MANUAL TRASNFER
+
+            const path = '/post/image/manualtransfer'; //file save path
+            const upload = uploader(path, 'MTF').fields([{ name: 'image'}]); //uploader(path, 'default prefix')
+    
+            upload(req, res, (err) => {
+                if(err){
+                    console.log("Masuk")
+                    return res.status(500).json({ message: 'Upload picture failed !', error: err.message });
+                }
+             
+                const { image } = req.files;
+                console.log(image)
+                const imagePath = image ? path + '/' + image[0].filename : null;
+                console.log(imagePath)
+    
+                console.log(req.body.data)
+                const data = JSON.parse(req.body.data);
+               
+                data.profileimg = imagePath;
+                var datasum = {
+                    transactiondate : moment().format('YYYY-MM-DD hh:mm:ss'),
+                    totalprice : data.totalprice,
+                    userid : data.userid,
+                    imagepath : data.profileimg
+                }
+                var sql = `insert into sumtransaction set ?`
+                db.query(sql,datasum, (err,result)=>{
+                    if(err) res.status(500).send(err);
+        
+                  
+                  
+                    var transactionid = result.insertId
+                    console.log(transactionid)
+                    var listproduct = []
+                    for(var i = 0; i< data.listproduct.length; i++){
+                        listproduct.push([...data.listproduct[i], transactionid])
+                    }
+                    console.log(listproduct)
+        
+                    sql = `insert into transactionitem (productid, price, qty, transactionid) VALUES ?`
+                    db.query(sql,[listproduct], (err,results2)=>{
+                        if(err){
+                            throw err;
+                        } 
+                        console.log("insert transactionitem success")
+                        sql = `delete from cartproduct where userid = ${data.userid}`
+                        db.query(sql, (err,result3)=>{
+                            if(err) res.status(500).send(err);
+                
+                            console.log("Delete Cart Transaction Success")
+                            
+                            res.status(200).send(result3)
+                        })
+                    })
+                })
+            })
+        }
+       
     }
 }

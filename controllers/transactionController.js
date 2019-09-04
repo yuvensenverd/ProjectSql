@@ -7,7 +7,7 @@ module.exports = {
         console.log(id)
         var sql = `select p.name, ti.price, ti.qty, ti.productid, ti.status,sh.name as shop, st.transactiondate, GROUP_CONCAT(i.imagepath) AS images from product p join image i on 
         i.product_id = p.Id join transactionitem ti on p.Id = ti.productid join shop sh on p.shop_id = sh.userid
-        join sumtransaction st on ti.transactionid = st.id where ti.status = 'Unconfirmed' AND st.userid = ${id}
+        join sumtransaction st on ti.transactionid = st.id where ti.status = 'Unconfirmed' AND st.userid = ${id} AND st.isrejected = 0
         group by ti.id`
         db.query(sql,(err,results)=>{
             if(err) throw err;
@@ -20,7 +20,7 @@ module.exports = {
         console.log(id)
         var sql = `select p.name as productname, ti.id as transactionid, u.userid, ti.price, ti.qty, ti.productid, ti.status,sh.name,u.username as buyer, st.transactiondate, GROUP_CONCAT(i.imagepath) AS images from product p join image i on 
         i.product_id = p.Id join transactionitem ti on p.Id = ti.productid join shop sh on p.shop_id = sh.userid 
-        join sumtransaction st on ti.transactionid = st.id join user u on u.userid = st.userid where ti.status = 'Unconfirmed' AND p.shop_id = ${id}
+        join sumtransaction st on ti.transactionid = st.id join user u on u.userid = st.userid where ti.status = 'Unconfirmed' AND p.shop_id = ${id} AND st.imagepath IS NULL AND st.isrejected = 0
         group by ti.id`
         db.query(sql,(err,results)=>{
             if(err) throw err;
@@ -80,7 +80,7 @@ module.exports = {
         console.log(id)
         var sql = `select p.name, ti.price, ti.qty, ti.id as transactionid, ti.productid, ti.status,sh.name as shop, st.transactiondate, GROUP_CONCAT(i.imagepath) AS images from product p join image i on 
         i.product_id = p.Id join transactionitem ti on p.Id = ti.productid join shop sh on p.shop_id = sh.userid
-        join sumtransaction st on ti.transactionid = st.id where ti.status = 'Confirmed' AND st.userid = ${id}
+        join sumtransaction st on ti.transactionid = st.id where ti.status = 'Confirmed' AND st.userid = ${id} 
         group by ti.id`
         db.query(sql,(err,results)=>{
             if(err) throw err;
@@ -104,7 +104,7 @@ module.exports = {
     },
     getUserTransactionHistory : (req,res) =>{
         console.log(req.params.id)
-        var sql = `select st.transactiondate, st.totalprice, st.userid, st.id as transid from sumtransaction st 
+        var sql = `select st.transactiondate, st.totalprice, st.userid, st.id as transid, st.isrejected as paymentstatus from sumtransaction st 
         where st.userid = ${req.params.id} AND st.deleted = 0
         order by transid `
 
@@ -123,7 +123,7 @@ module.exports = {
         //and (ti.status = 'Confirmed' OR ti.status = 'Success')
         var sql = `select p.name as productname, ti.status, ti.transactionid, ti.price, ti.qty, GROUP_CONCAT(i.imagepath) as images, s.name from transactionitem ti
         join product p on ti.productid = p.Id join image i on i.product_id = p.Id join shop s on p.shop_id =  s.userid join sumtransaction st
-        on st.id = ti.transactionid where st.userid = ${req.params.id} and ti.transactionid = ${req.params.tid}
+        on st.id = ti.transactionid where st.userid = ${req.params.id} and ti.transactionid = ${req.params.tid} 
         group by ti.id`
 
         db.query(sql,(err,results)=>{
@@ -186,6 +186,41 @@ module.exports = {
             res.status(200).send(results)
         })
 
+    },
+    getManualTransfer : (req,res)=>{
+        var sql = `select * from sumtransaction st where st.deleted = 0 AND st.imagepath IS NOT NULL AND st.isrejected = 0`
+
+        db.query(sql,(err,results)=>{
+            if(err) throw err;
+
+
+            console.log("Manual Transfer")
+            res.status(200).send(results)
+        })
+
+    },
+    adminApprove : (req,res) =>{
+        console.log(req.params.id)
+        var sql = `update sumtransaction st set st.imagepath = NULL where st.id = ${req.params.id}`
+
+        db.query(sql,(err,results)=>{
+            if(err) throw err;
+
+
+            console.log("Transfer Approve")
+            res.status(200).send(results)
+        })
+    },
+    adminReject : (req,res) =>{
+        console.log(req.params.id)
+        var sql = `update sumtransaction st set st.imagepath = NULL, st.isrejected = 1 where st.id = ${req.params.id}`
+        db.query(sql,(err,results)=>{
+            if(err) throw err;
+
+
+            console.log("Transfer Approve")
+            res.status(200).send(results)
+        })
     }
   
 }
