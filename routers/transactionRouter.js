@@ -5,6 +5,7 @@ const {auth} = require('../helpers/auth')
 
 router.get('/getunconfirmed/:id', auth, transactionController.getProductWaiting)
 router.get('/getconfirmed/:id', auth, transactionController.getConfirmedProduct)
+router.get('/getcancelled/:id', auth, transactionController.getCancelledProduct)
 router.get('/getunconfirmedshop/:id', auth, transactionController.getConfirmProduct)
 router.get('/confirmproduct/:id', auth, transactionController.confirmProduct)
 router.post('/successproduct/:id', auth, transactionController.successProduct)
