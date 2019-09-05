@@ -92,7 +92,7 @@ module.exports = {
         console.log(req.params.id)
         console.log("Masuk notiflen")
         var sql = `select count(ti.id) as NOTIFLEN from  transactionitem ti join sumtransaction st on ti.transactionid = st.id 
-        where (ti.status = 'Confirmed' OR ti.status = 'Unconfirmed') AND st.userid = ${req.params.id}`
+        where (ti.status = 'Confirmed' OR ti.status = 'Unconfirmed') AND st.userid = ${req.params.id} AND st.isrejected = 0`
         db.query(sql,(err,results)=>{
             if(err) throw err;
 
@@ -200,26 +200,42 @@ module.exports = {
 
     },
     adminApprove : (req,res) =>{
-        console.log(req.params.id)
-        var sql = `update sumtransaction st set st.imagepath = NULL where st.id = ${req.params.id}`
-
+        var sql = `select st.imagepath from sumtransaction st where st.id = ${req.params.id}`
         db.query(sql,(err,results)=>{
             if(err) throw err;
 
+            if(results.length > 0){
+                fs.unlinkSync('./public' + results[0].imagepath);
+            }
+            sql = `update sumtransaction st set st.imagepath = NULL where st.id = ${req.params.id}`
+            db.query(sql,(err,results2)=>{
+                if(err) throw err;
 
-            console.log("Transfer Approve")
-            res.status(200).send(results)
+
+                console.log("Transfer Approve")
+                res.status(200).send(results2)
+            })
+           
         })
     },
     adminReject : (req,res) =>{
         console.log(req.params.id)
-        var sql = `update sumtransaction st set st.imagepath = NULL, st.isrejected = 1 where st.id = ${req.params.id}`
+        var sql = `select st.imagepath from sumtransaction st where st.id = ${req.params.id}`
         db.query(sql,(err,results)=>{
             if(err) throw err;
 
+            if(results.length > 0){
+                fs.unlinkSync('./public' + results[0].imagepath);
+            }
+            sql = `update sumtransaction st set st.imagepath = NULL, st.isrejected = 1 where st.id = ${req.params.id}`
+            db.query(sql,(err,results2)=>{
+                if(err) throw err;
 
-            console.log("Transfer Approve")
-            res.status(200).send(results)
+
+                console.log("Transfer Approve")
+                res.status(200).send(results2)
+            })
+           
         })
     },
     getCancelledProduct : (req,res)=>{
