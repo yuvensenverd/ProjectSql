@@ -41,7 +41,7 @@ module.exports = {
             sql += `and c.name = '${req.query.cat}'  `
         }
         if(req.query.id){
-            sql += `and p.id = '${req.query.id}' `
+            sql += `and p.id = ${req.query.id} `
         }
         if(req.query.keyword){
             sql += `and p.name like '%${req.query.keyword}%' `
@@ -69,6 +69,23 @@ module.exports = {
        
     
         })
+    },
+    getProductDetailsRelated : (req,res) =>{
+        console.log(req.query.cid)
+        var sql = `select p.id, p.name, p.price, p.description, s.name as shopname, s.description as shopdesc, count(distinct r.id) as ReviewCount, avg(r.rating) as avgrating,
+        i.imagepath AS images, c.name as category from product p  left join category c on p.cat_id = c.id  left join shop s on 
+        p.shop_id = s.userid left join image i on p.id= i.product_id left join review r on r.productid = p.Id where p.deleted = 0 and c.name = '${req.query.cat}' and p.Id not in (${req.query.cid}) 
+        group by p.id order by rand() limit 5`
+
+        db.query(sql, (err,results)=>{
+            if(err){
+                console.log(err)
+                res.status(500).send(err);
+            } 
+       
+            res.status(200).send(results)
+        })
+
     },
     addProduct : (req,res) => {
         console.log(req.body)

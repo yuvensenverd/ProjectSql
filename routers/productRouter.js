@@ -5,6 +5,7 @@ const {auth} = require('../helpers/auth')
 
 router.get('/getprtable',auth, productController.getAllFromProduct)
 router.get('/getproduct',productController.getProductDetails)
+router.get('/getrelated',productController.getProductDetailsRelated)
 router.post('/addproduct',auth, productController.addProduct)
 router.get('/productcount', productController.getProductCount)
 router.post('/editimage',auth, productController.editimageProduct)
