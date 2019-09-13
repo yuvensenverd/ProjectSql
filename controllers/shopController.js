@@ -62,7 +62,9 @@ module.exports = {
         console.log(req.params.id)
         var sql = `select p.id, p.name, p.price, p.description, count(distinct r.id) as ReviewCount, avg(r.rating) as avgrating, c.name as cat, GROUP_CONCAT(distinct i.imagepath) AS images
         from product p left join category c on p.cat_id = c.id left join image i on p.id = i.product_id left join review r on r.productid = p.Id
-        where shop_id = ${req.params.id} and p.deleted = 0 group by p.id`
+        where shop_id = ${req.params.id} and p.deleted = 0 group by id`
+
+   
         
         
         db.query(sql,(err,result)=>{
@@ -74,5 +76,24 @@ module.exports = {
             res.status(200).send(result)
             
         })
+    },
+    getShopRating : (req,res)=>{
+        console.log('masuk rating')
+        console.log('req query')
+        console.log(req.query)
+        var sql = `select count(distinct r.id) as shopReviewCount, avg(r.rating) as shopAvgRating
+        from product p left join category c on p.cat_id = c.id left join image i on p.id = i.product_id left join review r on r.productid = p.Id
+        where shop_id = ${req.query.shopid} and p.deleted = 0`
+        db.query(sql,(err,result)=>{
+            if(err){
+                res.status(500).send(err);
+            }
+
+            console.log("berhasil get rating")
+            res.status(200).send(result)
+            
+        })
     }
+
+    
 }
