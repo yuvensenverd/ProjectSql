@@ -33,7 +33,7 @@ module.exports = {
         }
         console.log(req.query.pagenumber)
         
-        var sql = `select p.id, p.name, p.price, p.description, s.name as shopname, s.description as shopdesc, count(distinct r.id) as ReviewCount, avg(r.rating) as avgrating,
+        var sql = `select p.id, p.name, p.price, p.description,p.shop_id as shopid, s.name as shopname, s.description as shopdesc, count(distinct r.id) as ReviewCount, avg(r.rating) as avgrating,
         GROUP_CONCAT(distinct i.imagepath) AS images, c.name as category from product p  left join category c on p.cat_id = c.id  left join shop s on 
         p.shop_id = s.userid left join image i on p.id= i.product_id left join review r on r.productid = p.Id where p.deleted = 0 `
         
