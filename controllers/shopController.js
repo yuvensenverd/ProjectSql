@@ -33,15 +33,27 @@ module.exports = {
                     fs.unlinkSync('./public' + imagePath);
                     res.status(500).send(err);
                 } 
-                    
-        
-                
+
                 console.log("Register Shop Success")
+                //
+                sql = `SELECT u.username,u.saldo,u.profileimg, u.phonenumber,u.email, u.residence, u.userid, u.password, s.name as shopname, r.name as userrole from user u 
+                left join role r on u.role_id = r.id  left join shop s on u.userid = s.userid
+                where u.userid = ${data.userid}`
             
-                // console.log("masuk post a")
+
+                db.query(sql, (err,results2)=>{
+                    if(err) throw err;
+
+
+                        
+                    res.status(200).send(results2)
+
+                })
+                
+                
+      
             
-                // res.status(200).send(result)
-                res.status(200).send(result)
+            
             })
         })
     },

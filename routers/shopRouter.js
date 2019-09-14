@@ -4,8 +4,8 @@ const { shopController } = require('../controllers')
 const {auth} = require('../helpers/auth')
 
 router.post('/createshop', shopController.createStore)
-router.get('/getshopinfo/:id', auth, shopController.getUserStore)
-router.get('/getproductshop/:id',auth, shopController.getProductStore)
-router.get('/getshoprating',auth, shopController.getShopRating)
+router.get('/getshopinfo/:id', shopController.getUserStore)
+router.get('/getproductshop/:id', shopController.getProductStore)
+router.get('/getshoprating', shopController.getShopRating)
 
 module.exports = router;
