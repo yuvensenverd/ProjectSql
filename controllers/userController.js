@@ -212,7 +212,7 @@ module.exports = {
 
             var linkVerifikasi = `http://localhost:3000/verified?username=${req.body.username}&password=${results[0].password}`
             var mailOptions = {
-                from : 'App <yuvensenverd@yahoo.com>',
+                from : 'App <yuvensenverd@gmail.com>',
                 to: email,
                 subject: 'Email Verification',
                 html : `Please Click This Link for Verification

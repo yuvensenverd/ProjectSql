@@ -30,26 +30,39 @@ module.exports = {
     },
     confirmProduct : (req,res) =>{
         var id = req.params.id
+        var price = req.params.price
+        var shopid = req.params.shopid
         var sql = `update transactionitem set status = 'Confirmed' where id = ${id}`
         db.query(sql,(err,results)=>{
             if(err) throw err;
 
-            console.log(sql)
-
-            console.log("Product Updated Confirmed")
-            res.status(200).send(results)
+            console.log('masuuuk')
+            // nambah saldo di shop
+            sql = `update user set saldo = saldo + ${parseInt(price)} where userid = ${shopid}`
+            db.query(sql,(err,results2)=>{
+                if(err) throw err;
+    
+                console.log('set saldo success')
+    
+             
+                return res.status(200).send(results)
+            })
         })
     },
     cancelProduct : (req,res) =>{
         var id = req.params.id
+        var price = req.params.price
+        var buyer = req.params.buyer
         var sql = `update transactionitem set status = 'Cancelled' where id = ${id}`
         db.query(sql,(err,results)=>{
             if(err) throw err;
 
-            console.log(sql)
-
-            console.log("Cancel Product")
-            res.status(200).send(results)
+            sql = `update user set saldo = saldo + ${parseInt(price)} where userid = ${buyer}`
+            db.query(sql,(err,results2)=>{
+                if(err) throw err;
+             
+                return res.status(200).send(results)
+            })
         })
     },
     successProduct : (req,res) =>{
