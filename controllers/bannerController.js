@@ -45,10 +45,9 @@ module.exports = {
                     fs.unlinkSync('./public' + imagePath);
                     return res.status(500).json({ message: "There's an error on uploading files. Please contact the administrator.", error: err.message });
                 }
-                console.log(results1)
-                console.log(sql)
+               
 
-                console.log("berhasil insert")
+                console.log("success insert banner")
                 // res.status(200).send(results1)
 
            

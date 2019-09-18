@@ -109,7 +109,7 @@ module.exports = {
         db.query(sql,(err,results)=>{
             if(err) throw err;
 
-            console.log(sql)
+           
 
             console.log("Product Updated Success")
             res.status(200).send(results)
@@ -124,7 +124,7 @@ module.exports = {
         db.query(sql,(err,results)=>{
             if(err) throw err;
 
-            console.log(sql)
+        
 
             console.log("Get History Success")
             res.status(200).send(results)
@@ -142,7 +142,7 @@ module.exports = {
         db.query(sql,(err,results)=>{
             if(err) throw err;
 
-            console.log(sql)
+        
 
             console.log("Get Detail Success")
             res.status(200).send(results)

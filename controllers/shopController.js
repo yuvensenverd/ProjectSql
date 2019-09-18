@@ -90,9 +90,6 @@ module.exports = {
         })
     },
     getShopRating : (req,res)=>{
-        console.log('masuk rating')
-        console.log('req query')
-        console.log(req.query)
         var sql = `select count(distinct r.id) as shopReviewCount, avg(r.rating) as shopAvgRating
         from product p left join category c on p.cat_id = c.id left join image i on p.id = i.product_id left join review r on r.productid = p.Id
         where shop_id = ${req.query.shopid} and p.deleted = 0`

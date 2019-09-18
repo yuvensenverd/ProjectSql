@@ -198,7 +198,7 @@ module.exports = {
     },
     resendEmailVer : (req,res) =>{
         var {username, email}= req.body
-        console.log("Masuk resend")
+       
         var sql = `select username, password, email from user where username = '${username}' and email = '${email}'`
         db.query(sql, (err,results)=>{
             if(err){

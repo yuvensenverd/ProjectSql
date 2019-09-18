@@ -31,7 +31,7 @@ module.exports = {
 
             var offset = (req.query.pagenumber - 1) * itempage
         }
-        console.log(req.query.pagenumber)
+        // console.log(req.query.pagenumber)
         
         var sql = `select p.id, p.name, p.price, p.description,p.shop_id as shopid, s.name as shopname, s.description as shopdesc, count(distinct r.id) as ReviewCount, avg(r.rating) as avgrating,
         GROUP_CONCAT(distinct i.imagepath) AS images, c.name as category from product p  left join category c on p.cat_id = c.id  left join shop s on 
@@ -63,7 +63,6 @@ module.exports = {
             } 
         
            
-            console.log(sql)
           
             res.status(200).send(results)
        
@@ -71,7 +70,7 @@ module.exports = {
         })
     },
     getProductDetailsRelated : (req,res) =>{
-        console.log(req.query.cid)
+    
         var sql = `select p.id, p.name, p.price, p.description, s.name as shopname, s.description as shopdesc, count(distinct r.id) as ReviewCount, avg(r.rating) as avgrating,
         i.imagepath AS images, c.name as category from product p  left join category c on p.cat_id = c.id  left join shop s on 
         p.shop_id = s.userid left join image i on p.id= i.product_id left join review r on r.productid = p.Id where p.deleted = 0 and c.name = '${req.query.cat}' and p.Id not in (${req.query.cid}) 
@@ -88,21 +87,19 @@ module.exports = {
 
     },
     addProduct : (req,res) => {
-        console.log(req.body)
 
-        console.log("Masuk ADD Product")
         const path = '/post/image/product'; //file save path
         const upload = uploader(path, 'PRD').fields([{ name: 'image'}]); //uploader(path, 'default prefix')
 
         upload(req, res, (err) => {
             if(err){
-                console.log("Masuk")
+               
                 return res.status(500).json({ message: 'Upload picture failed !', error: err.message });
             }
             //UPLOAD BERHASIL
             var noimage = false
             const { image } = req.files;
-            console.log(image)
+  
             var imagepaths =[]
             if(image){
 
@@ -112,7 +109,7 @@ module.exports = {
                         imagepaths.push(imgpath)
                     }
                 }
-                console.log(imagepaths)
+         
             }else{
                 noimage = true
             }
@@ -120,12 +117,12 @@ module.exports = {
             // console.log(imagePath)
             // console.log(imagepaths)
 
-            console.log(req.body.data)
+  
             const data = JSON.parse(req.body.data);
             if(noimage == false){
 
                 data.productimg = imagepaths; // imagepaths is an array now
-                console.log(data)
+         
             }
             
             var sql = `INSERT INTO product set name = '${data.name}', price = ${data.price}, cat_id = (select id from category where name = '${data.cat_name}'),
@@ -137,14 +134,13 @@ module.exports = {
                     res.status(500).send(err)
                 }
 
-                console.log("Masuk gak error")
+            
                 // get product id baru
                 sql = `select id, name from product where name = '${data.name}' and description = '${data.description}'` // to avoid duplicate select
                 db.query(sql, (err,results2)=>{
                     if(err) res.status(500).send(err)
 
-                    console.log(results2)
-                    console.log(results2[0].id)
+                 
                     
                     // taro imagepath di table image
                     // var dataimg = {
@@ -161,7 +157,7 @@ module.exports = {
                             // })
                             datas.push([results2[0].id, data.productimg[i]])
                         }
-                        console.log(datas)
+               
                     }else{
                         return res.status(200).send(results2)
                     }
@@ -188,7 +184,6 @@ module.exports = {
                             return res.status(500).send(err)
                         } 
 
-                        console.log("berhasil set image path")
 
                         // sql = `UPDATE product set image_id = '${results2[0].id}' where name = '${results2[0].name}'`
                         // db.query(sql, (err, results4)=>{
@@ -207,22 +202,17 @@ module.exports = {
         if(!req.query.keyword){
             req.query.keyword = ''
         }
-        // if(!req.query.pagenumber){
-        //     req.query.pagenumber = 1
-        // }
-        // var itempage = 15 // modify item / page
-        // var offset = (req.query.pagenumber - 1) * itempage
-        // console.log("REQ QUERY KEYWORD " + req.query.keyword)
+     
         var sql = `select count(p.id) as count from product p where p.deleted = 0 and p.name like '%${req.query.keyword}%'`
         // sql = sql + ` limit ${offset}, ${itempage}`
         db.query(sql, (err,results)=>{
             if(err) throw err;
-            // console.log(results) // ARR OF OBJ
+     
             res.status(200).send(results)
         })
     },
     deleteProduct : (req,res)=>{
-        console.log(req.params.id)
+   
         var productid = req.params.id
         var sql = `update product p set p.deleted = 1 where p.Id = ${productid}`
         db.query(sql, (err,results)=>{
@@ -231,13 +221,13 @@ module.exports = {
                 return res.status(500).send("Delete Failed");
             }
 
-            console.log("delete success")
+        
             res.status(200).send(results)
     
         })
     },
     editimageProduct : (req,res)=>{
-        console.log("masuk editimageproduct")
+  
         const path = '/post/image/product'; //file save path
         const upload = uploader(path, 'PRD').fields([{ name: 'image'}]); //uploader(path, 'default prefix')
 
@@ -249,7 +239,7 @@ module.exports = {
             //UPLOAD BERHASIL
             var noimage = false
             const { image } = req.files;
-            console.log(image)
+        
             var imagepaths =[]
             if(image){
 
@@ -259,7 +249,7 @@ module.exports = {
                         imagepaths.push(imgpath)
                     }
                 }
-                console.log(imagepaths)
+              
             }else{
                 noimage = true
             }
@@ -267,20 +257,19 @@ module.exports = {
             // console.log(imagePath)
             // console.log(imagepaths)
 
-            console.log(req.body.data)
+         
             const data = JSON.parse(req.body.data);
-            console.log(data)
+       
             if(noimage == false){
 
                 data.productimg = imagepaths; // imagepaths is an array now
-                console.log(data)
+               
             }
 
             var sql = `select imagepath from image where product_id = ${data.id}`
             db.query(sql, (err,results)=>{
                 if(err) throw err;
                 // console.log(results) // ARR OF OBJ
-                console.log(results)
                 for(var i = 0; i<data.index.length; i++){
                     fs.unlinkSync('./public' + results[data.index[i]].imagepath);
                     sql = `update image set imagepath = '${data.productimg[i]}' where imagepath = '${results[data.index[i]].imagepath}'`
@@ -314,13 +303,13 @@ module.exports = {
 
         upload(req, res, (err) => {
             if(err){
-                console.log("Masuk")
+          
                 return res.status(500).json({ message: 'Upload picture failed !', error: err.message });
             }
             //UPLOAD BERHASIL
             var noimage = false
             const { image } = req.files;
-            console.log(image)
+        
             var imagepaths =[]
             if(image){
 
@@ -330,7 +319,7 @@ module.exports = {
                         imagepaths.push(imgpath)
                     }
                 }
-                console.log(imagepaths)
+            
             }else{
                 noimage = true
             }
@@ -343,7 +332,7 @@ module.exports = {
             if(noimage == false){
 
                 data.productimg = imagepaths; // imagepaths is an array now
-                console.log(data)
+        
             }
 
             var datas = []
@@ -351,7 +340,7 @@ module.exports = {
                 
                 datas.push([data.id, data.productimg[i]])
             }
-            console.log(datas)
+    
 
             //SQL
             sql = `INSERT INTO image (product_id, imagepath) VALUES ?`
