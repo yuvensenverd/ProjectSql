@@ -8,10 +8,9 @@ const { createJWTToken } = require('../helpers/jwt')
 module.exports = {
     getUserData : (req,res)=>{
         // evnrypt
-        console.log("Masuk FUnction")
-        console.log(req.body.pass)
+      
         var hashpassword = encrypt(req.body.pass)
-        console.log(hashpassword)
+       
         
         var sql = `SELECT u.username,u.saldo,u.profileimg, u.phonenumber,u.email, u.residence, u.userid, u.status, u.password, s.name as shopname, r.name as userrole from user u 
         left join role r on u.role_id = r.id  left join shop s on u.userid = s.userid
@@ -29,8 +28,6 @@ module.exports = {
             }
        
     
-            console.log("Masuk get user")
-            console.log(results) // arrofobj
             const token = createJWTToken({username : results[0].username, password : results[0].password})
             results.push(token)
             res.status(200).send(results)
@@ -54,7 +51,7 @@ module.exports = {
 
         var encrypted = encrypt(req.body.password)
         req.body.password = encrypted
-        console.log(encrypted)
+      
 
         var sql = `Insert into user set ?`
         db.query(sql,req.body, (err,result)=>{
@@ -62,13 +59,13 @@ module.exports = {
     
             if(err) res.status(500).send(err);
     
-            console.log(result)
+      
     
             
-            console.log("Register Success")
+   
             sql = `SELECT username, password from user where username = '${req.body.username}'`
             db.query(sql, (err, result2)=>{
-                console.log(result2)
+           
 
                 var linkVerifikasi = `http://localhost:3000/verified?username=${req.body.username}&password=${encrypted}`
                 var mailOptions = {
@@ -85,7 +82,7 @@ module.exports = {
                         return res.status(500).send({status : 'error', err : err2})
                     }
                     
-                    console.log("SUCCESS!")
+             
                     return res.status(200).send(result2)
                 })
 
@@ -99,9 +96,7 @@ module.exports = {
     },
     saveProfile : (req,res) =>{
         try {
-            console.log(req.body.data)
-            console.log(req.body)
-            console.log("Masuk ADD POST")
+          
             const path = '/post/image/user'; //file save path
             const upload = uploader(path, 'AVT').fields([{ name: 'image'}]); //uploader(path, 'default prefix')
     
@@ -112,11 +107,9 @@ module.exports = {
                 }
              
                 const { image } = req.files;
-                console.log(image)
+            
                 const imagePath = image ? path + '/' + image[0].filename : null;
-                console.log(imagePath)
-    
-                console.log(req.body.data)
+              
                 const data = JSON.parse(req.body.data);
                
                 data.profileimg = imagePath;
@@ -128,12 +121,11 @@ module.exports = {
                         fs.unlinkSync('./public' + imagePath);
                         return res.status(500).json({ message: "There's an error on the server. Please contact the administrator.", error: err.message });
                     }
-                    console.log(results1)
+                
                     if(results1[0].profileimg){
-                        console.log("ADA PATH LAMA")
-                        console.log(results1[0].profileimg)
+                      
                         fs.unlinkSync('./public'+results1[0].profileimg)
-                        console.log("old file deleted")
+                     
                     }
                     
       
@@ -148,7 +140,7 @@ module.exports = {
                         return res.status(500).json({ message: "There's an error on the server. Please contact the administrator.", error: err.message });
                     }
                     
-                    console.log("Path image berhasil di update")
+              
 
                     sql = `SELECT u.username,u.saldo,u.profileimg, u.phonenumber,u.email, u.residence, u.userid, u.password, s.name as shopname, r.name as userrole from user u 
                             left join role r on u.role_id = r.id  left join shop s on u.userid = s.userid
@@ -176,9 +168,7 @@ module.exports = {
     emailVerification : (req,res) =>{
         var { username, password} = req.body;
         var sql = `Select username,email from user where username = '${username}'`
-        console.log("Masuk verifikasi")
-        console.log(username)
-        console.log(password)
+    
 
         db.query(sql, (err, results)=>{
             if(err) return res.status(500).send({status : 'error', err })
@@ -186,7 +176,7 @@ module.exports = {
             if(results.length === 0){
                 return res.status(500).send({ status : 'error', err : 'Users Not Found'})
             }
-            console.log("berhasil")
+          
 
             sql = `Update user set status='Verified' where username = '${username}' and password='${password}'`
             db.query(sql, (err,results1)=>{
@@ -225,7 +215,7 @@ module.exports = {
                     return res.status(500).send({status : 'error', err : err2})
                 }
                 
-                console.log("SUCCESS!")
+              
                 return res.status(200).send(results)
             })
 
@@ -245,7 +235,7 @@ module.exports = {
         })
     },
     loginToken : (req,res) => {
-        console.log("Masuk FUnction")
+     
 
         
         var sql = `SELECT u.username,u.saldo,u.profileimg, u.phonenumber,u.email, u.residence, u.userid, u.status, u.password, s.name as shopname, r.name as userrole from user u 
@@ -262,8 +252,7 @@ module.exports = {
                 return res.status(500).send({status : 'error', err : 'Token Invalid , Please Relog in the Login Page'})
             }
     
-            console.log("Masuk get token user")
-            console.log(results) // arrofobj
+       
             const token = createJWTToken({username : results[0].username, password : results[0].password})
             results.push(token)
             res.status(200).send(results)
@@ -272,7 +261,7 @@ module.exports = {
         })
     },
     changeResidence : (req,res) =>{
-        console.log(req.body)
+ 
         var sql = `update user set residence = '${req.body.residence}' where userid = ${req.body.id}`
         db.query(sql, (err,results)=>{
             if(err) throw err;
@@ -299,7 +288,7 @@ module.exports = {
     onUserTransaction : (req,res) =>{
    
         req.body.balance = parseInt(req.body.balance)
-        console.log(req.body)
+  
         var sql = `UPDATE user u set u.saldo = u.saldo+${req.body.balance} where u.userid = ${req.body.userid}`
         db.query(sql, (err,results)=>{
             if(err) throw err;
@@ -327,12 +316,11 @@ module.exports = {
         db.query(sql, (err,results)=>{
             if(err) throw err;
             
-            console.log(results[0])
-            console.log(encrypt(req.body.oldpass))
+       
             if(results[0].password === encrypt(req.body.oldpass)){ // confirm pass lama
                 var encrypted = encrypt(req.body.password)
                 req.body.password = encrypted
-                console.log(encrypted)
+           
                 var sql = `update user u set u.password = '${req.body.password}' where u.userid = ${req.body.userid}`
                 db.query(sql, (err,results2)=>{
                     if(err) throw err;
@@ -365,7 +353,7 @@ module.exports = {
   
     },
     adminEditUser : (req,res) =>{
-        console.log(req.body)
+      
         var sql = `select * from role`
         db.query(sql,req.body, (err,results2)=>{
             if(err) throw err;
@@ -374,7 +362,7 @@ module.exports = {
                 if(results2[i].name === req.body.role){
                     req.body.role_id = results2[i].id
                     find = true
-                    console.log(req.body.role_id)
+            
                     delete req.body.role
                     break;
                 }
@@ -382,7 +370,7 @@ module.exports = {
             if(find === false){
                 return res.status(500).send({status : 'error', err : 'Role Not Found!'})
             }
-            console.log(req.body)
+       
             sql = `update user u set ? where u.userid = ${req.params.id}`
             db.query(sql,req.body, (err,results)=>{
                 if(err) throw err;

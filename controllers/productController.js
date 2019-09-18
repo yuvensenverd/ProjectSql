@@ -289,7 +289,7 @@ module.exports = {
     },
     editProduct : (req,res) =>{
         var id = req.params.id
-        console.log(req.body)
+   
         var sql = `update product set ? where Id = ${id}`
         db.query(sql,req.body, (err,results)=>{
             if(err) throw err;

@@ -61,7 +61,6 @@ module.exports = {
     },
     getBannerPath : (req,res) => {
         var sql = `select GROUP_CONCAT(image) AS images from banner`
-        console.log("Masuk banner path")
         db.query(sql, (err,results)=>{
             if(err) throw err;
        

@@ -50,7 +50,7 @@ module.exports = {
             if(err) res.status(500).send(err);
     
             
-            console.log("UPDATE Cart Success")
+       
          
             // console.log("masuk post a")
           
@@ -59,7 +59,7 @@ module.exports = {
         })
     },
     deleteItemCart : (req,res) =>{
-        console.log("Delete masuk cart ")
+     
         var sql = `delete from cartproduct where productid = ${req.params.id} and userid = ${req.params.userid}`
         db.query(sql, (err,result)=>{
             if(err) res.status(500).send(err);
@@ -71,7 +71,7 @@ module.exports = {
         })
     },
     addTransaction : (req,res) =>{
-        console.log("Masuk")
+   
       
        
         if(req.body.gopay){
